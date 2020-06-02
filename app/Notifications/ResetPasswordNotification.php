@@ -20,8 +20,9 @@ class ResetPasswordNotification extends ResetPassword
     public function toMail($notifiable)
     {
         return (new MailMessage)
-                    ->line('「パスワード再設定」ボタンを押してパスワードを再設定してください。')
-                    ->action('パスワード再設定', route('password.reset', $this->token))
-                    ->line('もしこのメッセージに心当たりがない場合は破棄してください。');
+            ->subject('パスワード再設定')
+            ->markdown('emails.reset_password', [
+                'url' => route('password.reset', $this->token)
+            ]);
     }
 }
