@@ -26,7 +26,7 @@ class VerifyEmailNotification extends VerifyEmail
         }
 
         return (new MailMessage)
-            ->subject(sprintf('[%s] メールアドレス認証', config('app.name')))
+            ->subject(sprintf('[%s] 本登録のご案内', config('app.name')))
             ->markdown('emails.verify', [
                 'url' => $verificationUrl
             ]);
