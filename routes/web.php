@@ -25,7 +25,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::namespace('Admin')->prefix('admin')->name('admin.')->group(function () {
-    Auth::routes(['verify' => true]);
+    Auth::routes();
 
     Route::middleware(['auth:admin'])->group(function () {
         Route::get('/', 'HomeController@index')->name('home');
