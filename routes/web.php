@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -11,11 +12,18 @@ use Illuminate\Support\Facades\Route;
 Auth::routes(['verify' => true]);
 Route::post('email/verify/register', 'Auth\VerificationController@register')->name('email.verify.register');
 
-
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/', 'HomeController@index')->name('home');
+    
     Route::get('/welcome', function () {
         return view('welcome');
+    })->name('welcome');
+    Route::get('/chat', function () {
+        $username = \Auth::user()->name;
+        return view('chat', compact('username'));
+    })->name('chat');
+    Route::post('/chat/send', function (Request $request) {
+        event(new \App\Events\PublicChannelEvent($request->message));
     });
 });
 

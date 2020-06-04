@@ -86,7 +86,7 @@
 
                 <div class="links">
                     <a href="{{ route('admin.home') }}">Admin</a>
-                    <a href="{{ route('chats') }}">Chat</a>
+                    <a href="{{ route('chat') }}">Chat</a>
                 </div>
             </div>
         </div>
