@@ -19,6 +19,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return view('welcome');
     })->name('welcome');
 
+    // Public
     Route::get('/chat/public', function () {
         $username = \Auth::user()->name;
         return view('chat.public', compact('username'));
@@ -28,10 +29,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
         event(new \App\Events\PublicChannelEvent($request->message));
     });
 
+    // Private
     Route::get('/chat/private', function () {
         $user = \Auth::user();
         return view('chat.private', compact('user'));
     })->name('chat.private');
+
+    // Presence
+    Route::get('/chat/presence/{id}', function ($id) {
+        $username = \Auth::user()->name;
+        return view('chat.presence', compact('username', 'id'));
+    })->name('chat.presence');
+    Route::post('/chat/presence/{id}', function (Request $request, $id) {
+        event(new \App\Events\PresenceChannelEvent($request->message, $id));
+    });
 });
 
 /*

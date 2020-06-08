@@ -13,4 +13,5 @@
     - Public Channel(#general): /chat/public
     - Private Channel: /admin/users -> /chat/private    
         - 管理者から個別ユーザーに対する一方通行な通知に使える
-
+    - Presence Channel: /chat/presence/1, /chat/presence/2
+        - ユーザー同士のチャットルームとして使える

@@ -88,6 +88,8 @@
                     <a href="{{ route('admin.home') }}">Admin</a>
                     <a href="{{ route('chat.public') }}">Chat - Public Channel</a>
                     <a href="{{ route('chat.private') }}">Chat - Private Channel</a>
+                    <a href="{{ route('chat.presence', 1) }}">Chat - Presence Channel1</a>
+                    <a href="{{ route('chat.presence', 2) }}">Chat - Presence Channel2</a>
                 </div>
             </div>
         </div>
