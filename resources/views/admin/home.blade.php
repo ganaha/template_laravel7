@@ -14,7 +14,8 @@
                         </div>
                     @endif
 
-                    You are logged in!
+                    You are logged in!<br>
+                    <a href="{{ route('admin.welcome') }}">welcome</a>
                 </div>
             </div>
         </div>

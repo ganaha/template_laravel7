@@ -86,7 +86,8 @@
 
                 <div class="links">
                     <a href="{{ route('admin.home') }}">Admin</a>
-                    <a href="{{ route('chat') }}">Chat</a>
+                    <a href="{{ route('chat.public') }}">Chat - Public Channel</a>
+                    <a href="{{ route('chat.private') }}">Chat - Private Channel</a>
                 </div>
             </div>
         </div>
