@@ -8,9 +8,9 @@
         </div>
         <div class="base" v-for="message in messages" :key="message.timestamp">
             <div :class="[username == message.name ? 'me' : 'you']">{{ message.message }}</div>
-            <div v-show="message.timestamp" :class="[username == message.name ? 'me-status' : 'you-status']">{{ message.timestamp }}, {{ message.name }}</div>
-            <div v-show="typingUsername">{{ typingUsername }} さんが入力中...</div>
+            <div v-show="message.timestamp" :class="[username == message.name ? 'me-status' : 'you-status']">{{ message.timestamp | moment('hh:mm') }}, {{ message.name }}</div>
         </div>
+        <div v-show="typingUsername">{{ typingUsername }} さんが入力中...</div>
         <form @submit.prevent="send">
             <input type="text" value="" v-model="text" @keydown="typeInput" />
             <input type="submit" value="送信">
@@ -28,7 +28,7 @@
     background-color: #eee;
 }
 .me {
-  width: 30%;
+  width: 40%;
   margin:10px 10px 0px auto;
   padding: 20px;
   background-color: #7ade40;
@@ -36,7 +36,7 @@
   word-wrap: break-word;
 }
 .you {
-  width: 30%;
+  width: 40%;
   margin:10px;
   padding: 20px;
   background-color: #f8f8f8;
@@ -54,7 +54,7 @@
 </style>
 
 <script>
-import Pusher from 'pusher-js';
+import moment from 'moment';
 
 export default {
     props: ["username", "id"],
@@ -77,7 +77,6 @@ export default {
         });
 
         this.channel = Echo.join('chat.' + this.id).here((users) => {
-            console.log('here', users);
             this.hereUsers = users;
         }).joining((user) => {
             this.messages.push({message: user.name + 'さんが入室しました。'});
@@ -86,15 +85,18 @@ export default {
             this.messages.push({message: user.name + 'さんが退室しました。'});
             this.hereUsers = this.hereUsers.filter((u) => u.id !== user.id);
         }).listen('PresenceChannelEvent', (e) => {
-            console.log('listen', e);
+            this.stopTyping();
             this.messages.push(e);
         }).listenForWhisper('typing', (e) => {
             this.typingUsername = e.name;
             if (this.typingTimer) clearTimeout(this.typingTimer);
-            this.typingTimer = setTimeout(() => {
-                this.typingUsername = '';
-            }, 3000);
+            this.typingTimer = setTimeout(this.stopTyping, 3000);
         });
+    },
+    filters: {
+        moment(val, format) {
+            return moment(val).format(format);
+        }
     },
     methods: {
         send() {
@@ -114,6 +116,9 @@ export default {
                 name: this.username
             });
         },
+        stopTyping() {
+            this.typingUsername = '';
+        }
     }
 }
 </script>
