@@ -9,9 +9,10 @@
         <div class="base" v-for="message in messages" :key="message.timestamp">
             <div :class="[username == message.name ? 'me' : 'you']">{{ message.message }}</div>
             <div v-show="message.timestamp" :class="[username == message.name ? 'me-status' : 'you-status']">{{ message.timestamp }}, {{ message.name }}</div>
+            <div v-show="typingUsername">{{ typingUsername }} さんが入力中...</div>
         </div>
         <form @submit.prevent="send">
-            <input type="text" value="" v-model="text" />
+            <input type="text" value="" v-model="text" @keydown="typeInput" />
             <input type="submit" value="送信">
         </form>
         <button @click="leaveChannel">退室</button>
@@ -62,6 +63,9 @@ export default {
             messages: [],
             text: "",
             hereUsers: [],
+            channnel: null,
+            typingUsername: '',
+            typingTimer: null,
         }
     },
     created() {
@@ -72,7 +76,7 @@ export default {
             cluster: process.env.MIX_PUSHER_APP_CLUSTER
         });
 
-        Echo.join('chat.' + this.id).here((users) => {
+        this.channel = Echo.join('chat.' + this.id).here((users) => {
             console.log('here', users);
             this.hereUsers = users;
         }).joining((user) => {
@@ -84,6 +88,12 @@ export default {
         }).listen('PresenceChannelEvent', (e) => {
             console.log('listen', e);
             this.messages.push(e);
+        }).listenForWhisper('typing', (e) => {
+            this.typingUsername = e.name;
+            if (this.typingTimer) clearTimeout(this.typingTimer);
+            this.typingTimer = setTimeout(() => {
+                this.typingUsername = '';
+            }, 3000);
         });
     },
     methods: {
@@ -98,7 +108,12 @@ export default {
         },
         leaveChannel() {
             Echo.leave('chat.' + this.id);
-        }
+        },
+        typeInput() {
+            this.channel.whisper('typing', {
+                name: this.username
+            });
+        },
     }
 }
 </script>
