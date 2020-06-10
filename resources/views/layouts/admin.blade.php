@@ -39,7 +39,7 @@
                     <!-- Right Side Of Navbar -->
                     <ul class="navbar-nav ml-auto">
                         <!-- Authentication Links -->
-                        @guest
+                        @guest('admin')
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('admin.login') }}">{{ __('Login') }}</a>
                             </li>
