@@ -72,10 +72,6 @@ export default {
         // Enable pusher logging - don't include this in production
         Pusher.logToConsole = true;
 
-        var pusher = new Pusher(process.env.MIX_PUSHER_APP_KEY, {
-            cluster: process.env.MIX_PUSHER_APP_CLUSTER
-        });
-
         this.channel = Echo.join('chat.' + this.id).here((users) => {
             this.hereUsers = users;
         }).joining((user) => {

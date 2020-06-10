@@ -5,8 +5,20 @@
         <div class="row">
             <div class="col-12">
                 <div class="card" style="padding:15px;">
+                    <!-- 入出者一覧 -->
                     <div v-for="member in members" :key="member.id">
                         <a href="#" @click.prevent="startVideoChat(member.id)">「@{{ member.name }}」さんと通話を開始する</a>
+                    </div>
+                    <!-- チャット -->
+                    <div class="card-body" v-for="message in messages" :key="message.timestamp">
+                        <h5 class="card-title">{{ message.name }}</h5>
+                        <p class="card-text">{{  message.message }}</p>
+                    </div>
+                    <div class="input-group">
+                        <input id="btn-input" type="text" class="form-control input-sm" placeholder="Type your message here..." v-model="text" autofocus />
+                        <span class="input-group-btn">
+                            <button class="btn btn-primary" @click.prevent="send">Send</button>
+                        </span>
                     </div>
                 </div>
             </div>
@@ -31,7 +43,11 @@
 
 <style scoped>
 video {
-    width: 100%
+    width: 100%;
+}
+.card-title {
+    float: left;
+    margin-right: 30px;
 }
 </style>
 
@@ -44,6 +60,8 @@ export default {
             channel: null,
             peers: {},
             members: [],
+            text: '',
+            messages: [],
         }
     },
     mounted() {
@@ -56,7 +74,7 @@ export default {
             videoHere.srcObject = stream;
             this.stream = stream;
 
-            this.channel = Echo.join('presence-video-chat').here((members) => {
+            this.channel = Echo.join('chat.1').here((members) => {
                 // 入室者一覧取得
                 this.members = Object.keys(members)
                         .map((key) => members[key])
@@ -72,6 +90,8 @@ export default {
                 const userId = signal.userId;
                 const peer = this.getPeer(userId, false);
                 peer.signal(signal.data);
+            }).listen('PresenceChannelEvent', (e) => {
+                this.messages.push(e);
             });
         }).catch((err) => {
             console.log('catch', err);
@@ -113,6 +133,17 @@ export default {
             this.peers[userId] = peer;
 
             return peer;
+        },
+        // メッセージ送信
+        send() {
+            console.log('send', this.text);
+            axios.post('/chat/presence/1', {
+              message: this.text,
+            }).then((res) => {
+                this.text = '';
+            }).catch((e) => {
+                console.log('error', e);
+            });
         }
     }
 }
