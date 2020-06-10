@@ -5,8 +5,8 @@
         <div class="row">
             <div class="col-12">
                 <div class="card" style="padding:15px;">
-                    <div v-for="user in others" :key="user.id">
-                        <a href="#" @click.prevent="startVideoChat(user.id)">「@{{ user.name }}」さんと通話を開始する</a>
+                    <div v-for="member in members" :key="member.id">
+                        <a href="#" @click.prevent="startVideoChat(member.id)">「@{{ member.name }}」さんと通話を開始する</a>
                     </div>
                 </div>
             </div>
@@ -43,6 +43,7 @@ export default {
             stream: null,
             channel: null,
             peers: {},
+            members: [],
         }
     },
     mounted() {
@@ -50,29 +51,34 @@ export default {
         Pusher.logToConsole = true;
 
         navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
+            // 自video表示
             const videoHere = this.$refs['video-here'];
             videoHere.srcObject = stream;
             this.stream = stream;
 
-            var pusher = new Pusher(process.env.MIX_PUSHER_APP_KEY, {
-                authEndpoint: '/auth/video_chat',
-                cluster: process.env.MIX_PUSHER_APP_CLUSTER,
-                auth: {
-                    headers: {
-                        'X-CSRF-Token': document.head.querySelector('meta[name="csrf-token"]').content
-                    }
-                }
-            });
-
-            this.channel = pusher.subscribe('presence-video-chat');
-            this.channel.bind('client-signal-' + this.user.id, (signal) => {
+            this.channel = Echo.join('presence-video-chat').here((members) => {
+                // 入室者一覧取得
+                this.members = Object.keys(members)
+                        .map((key) => members[key])
+                        .filter((u) => u.id !== this.user.id);
+            }).joining((member) => {
+                // 入室者を追加
+                this.members.push(member);
+            }).leaving((member) => {
+                // 退室者を除外
+                this.members = this.members.filter((u) => u.id !== member.id);
+            }).listenForWhisper('client-signal-' + this.user.id, (signal) => {
+                // 相手video受信
                 const userId = signal.userId;
                 const peer = this.getPeer(userId, false);
                 peer.signal(signal.data);
             });
-        })
+        }).catch((err) => {
+            console.log('catch', err);
+        });
     },
     methods: {
+        // 開始
         startVideoChat(userId) {
             console.log('click');
             this.getPeer(userId, true);
@@ -85,13 +91,16 @@ export default {
                 trickle: false
             });
             peer.on('signal', (data) => {
-                this.channel.trigger('client-signal-' + userId, {
+                // video送信
+                this.channel.whisper('client-signal-' + userId, {
                     userId: this.user.id,
                     data: data,
                 });
             }).on('connect', () => {
+                // 接続
                 console.log('CONNECT');
             }).on('stream', (stream) => {
+                // video受信
                 const videoThere = this.$refs['video-there'];
                 videoThere.srcObject = stream;
             }).on('close', () => {
