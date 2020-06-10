@@ -90,6 +90,7 @@
                     <a href="{{ route('chat.private') }}">Chat - Private Channel</a>
                     <a href="{{ route('chat.presence', 1) }}">Chat - Presence Channel1</a>
                     <a href="{{ route('chat.presence', 2) }}">Chat - Presence Channel2</a>
+                    <a href="{{ route('video') }}">Video Chat</a>
                 </div>
             </div>
         </div>
