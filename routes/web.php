@@ -30,7 +30,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         event(new \App\Events\PublicChannelEvent($request->message));
     });
 
-    // Private
+    // Private(管理者 -> user)
     Route::get('/chat/private', function () {
         $user = \Auth::user();
         return view('chat.private', compact('user'));
@@ -45,11 +45,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         event(new \App\Events\PresenceChannelEvent($request->message, $id));
     });
 
-    // Video Chat
+    // Video Chat(1 vs 1)
     Route::get('/video', function () {
         $user = \Auth::user();
         return view('video.index', compact('user'));
     })->name('video');
+
+    // Video Chat(複数人)
+    Route::get('/video/group', function () {
+        $user = \Auth::user();
+        return view('video.group', compact('user'));
+    })->name('video.group');
 });
 
 /*

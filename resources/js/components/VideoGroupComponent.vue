@@ -1,53 +1,77 @@
 <template>
     <div class="container">
-        <h1 class="text-center">ビデオチャットのサンプル</h1>
-        <br>
+        <h1 class="text-center">グループビデオチャットのサンプル</h1>
+
+        <!-- 入室者一覧 -->
         <div class="row">
             <div class="col-12">
-                <div class="card" style="padding:15px;">
-                    <!-- 入出者一覧 -->
-                    <div v-for="member in members" :key="member.id">
-                        <a href="#" @click.prevent="startVideoChat(member.id)">「{{ member.name }}」さんと通話を開始する</a>
+                <div class="card" style="width: 18rem;">
+                    <div class="card-header">
+                        入室者一覧
                     </div>
-                    <!-- チャット -->
-                    <div class="card-body" v-for="message in messages" :key="message.timestamp">
-                        <h5 class="card-title">{{ message.name }}</h5>
-                        <p class="card-text">{{  message.message }}</p>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item" v-for="member in members" :key="member.id">{{ member.name }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ビデオ一覧 -->
+        <div class="row">
+            <div class="col-sm">
+                <div class="card">
+                    <video class="card-img-top" ref="video-self" autoplay></video>
+                    <div class="card-body">
+                        <h5 class="card-title text-center">自分の映像</h5>
                     </div>
-                    <div class="input-group">
-                        <input id="btn-input" type="text" class="form-control input-sm" placeholder="Type your message here..." v-model="text" autofocus />
-                        <span class="input-group-btn">
-                            <button class="btn btn-primary" @click.prevent="send">Send</button>
-                        </span>
+                </div>
+            </div>
+            <div class="col-sm" v-for="member in members" :key="member.id">
+                <div class="card text-center">
+                    <video class="card-img-top" :ref="'video-' + member.id" autoplay></video>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ member.name }}の映像</h5>
+                        <button class="btn btn-primary btn-block" @click.prevent="startVideoChat(member.id)">Call</button>
                     </div>
                 </div>
             </div>
         </div>
-        <br>
+
+        <!-- チャットメッセージ表示 -->
         <div class="row">
-            <div class="col-5">
-                <div class="text-center">自分の映像</div>
-                <video ref="video-here" autoplay></video>
-            </div>
-            <div class="col-2 text-center">
-                ⇔<br>
-                ビデオチャット
-            </div>
-            <div class="col-5">
-                <div class="text-center">相手の映像</div>
-                <video ref="video-there" autoplay></video>
+            <div class="col-12">
+                <ul class="list-group">
+                    <li class="list-group-item" v-for="message in messages" :key="message.timestamp">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ message.name }}</h5>
+                            <small class="text-muted">{{ message.timestamp }}</small>
+                        </div>
+                        <p class="mb-1">{{ message.message }}</p>
+                    </li>
+                </ul>
             </div>
         </div>
+        <!-- チャットメッセージ入力 -->
+        <div class="row">
+            <div class="col-12">
+                <div class="input-group">
+                    <input id="btn-input" type="text" class="form-control input-sm" placeholder="Type your message here..." v-model="text" autofocus />
+                    <span class="input-group-btn">
+                        <button class="btn btn-primary" @click.prevent="send">Send</button>
+                    </span>
+                </div>
+            </div>
+        </div>
+
     </div>
 </template>
 
 <style scoped>
-video {
-    width: 100%;
+.row {
+    margin-top: 30px;
 }
-.card-title {
-    float: left;
-    margin-right: 30px;
+.btn {
+    margin-left: 10px;
 }
 </style>
 
@@ -70,10 +94,11 @@ export default {
 
         navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
             // 自video表示
-            const videoHere = this.$refs['video-here'];
+            const videoHere = this.$refs['video-self'];
             videoHere.srcObject = stream;
             this.stream = stream;
 
+            // ビデオチャット
             this.channel = Echo.join('chat.1').here((members) => {
                 // 入室者一覧取得
                 this.members = Object.keys(members)
@@ -82,6 +107,8 @@ export default {
             }).joining((member) => {
                 // 入室者を追加
                 this.members.push(member);
+                // Video Start
+                this.startVideoChat(member.id);
             }).leaving((member) => {
                 // 退室者を除外
                 this.members = this.members.filter((u) => u.id !== member.id);
@@ -93,6 +120,7 @@ export default {
             }).listen('PresenceChannelEvent', (e) => {
                 this.messages.push(e);
             });
+
         }).catch((err) => {
             console.log('catch', err);
         });
@@ -121,8 +149,8 @@ export default {
                 console.log('CONNECT');
             }).on('stream', (stream) => {
                 // video受信
-                const videoThere = this.$refs['video-there'];
-                videoThere.srcObject = stream;
+                const videoThere = this.$refs['video-' + userId];
+                videoThere[0].srcObject = stream;
             }).on('close', () => {
                 const peer = this.peers[userId];
                 if (peer !== undefined) peer.destroy();
