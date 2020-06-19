@@ -21,3 +21,5 @@
 - ビデオチャット(映像/音声)
     - /video
     - 別ユーザーで/videoにアクセスし、「@t.ganaha+user2」さんと通話を開始する を押下
+- API
+    - Laravel Sanctum

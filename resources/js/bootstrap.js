@@ -41,3 +41,8 @@ window.Echo = new Echo({
 });
 
 window.Peer = require('simple-peer');
+
+/**
+ * Laravel Sanctum
+ */
+axios.defaults.withCredentials = true;
