@@ -38,7 +38,13 @@ Route::post('/sanctum/token', function (Request $request) {
     return $user->createToken('my-token')->plainTextToken;
 });
 
-// ログインユーザー情報
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('auth:sanctum')->group(function () {
+    // ログインユーザー情報
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+    // ユーザー一覧取得
+    Route::get('/users', function (Request $request) {
+        return User::paginate(2);
+    });
 });
