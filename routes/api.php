@@ -21,7 +21,7 @@ use App\User;
 // });
 
 // ログイン(トークン発行)
-Route::post('/sanctum/token', function (Request $request) {
+Route::post('/login', function (Request $request) {
     $request->validate([
         'email' => 'required|email',
         'password' => 'required'
@@ -46,5 +46,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // ユーザー一覧取得
     Route::get('/users', function (Request $request) {
         return User::paginate(2);
+    });
+    Route::get('/logout', function (Request $request) {
+        \Auth::user()->tokens()->delete();
+        return 'OK';
     });
 });
