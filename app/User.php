@@ -4,6 +4,7 @@ namespace App;
 
 use App\Notifications\ResetPasswordNotification;
 use App\Notifications\VerifyEmailNotification;
+use App\Notifications\VerifyEmailNotificationForApi;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -12,10 +13,6 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, Notifiable;
-
-    const STATUS_SIGNUP = 0; // 仮登録
-    const STATUS_REGISTER = 1; // 本登録
-    const STATUS_DEACTIVE = 9; // 退会
 
     /**
      * The attributes that are mass assignable.
@@ -63,5 +60,15 @@ class User extends Authenticatable implements MustVerifyEmail
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new ResetPasswordNotification($token));
+    }
+
+    /**
+     * Send the email verification notification For API.
+     *
+     * @return void
+     */
+    public function sendEmailVerificationNotificationForApi()
+    {
+        $this->notify(new VerifyEmailNotificationForApi());
     }
 }

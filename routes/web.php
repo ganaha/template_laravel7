@@ -10,7 +10,11 @@ use Illuminate\Http\Request;
 */
 // @see vendor/laravel/ui/src/AuthRouteMethods.php
 Auth::routes(['verify' => true]);
-Route::post('email/verify/register', 'Auth\VerificationController@register')->name('email.verify.register');
+Route::post('/email/verify/register', 'Auth\VerificationController@register')->name('email.verify.register');
+
+Route::get('/ok', function () {
+    return 'OK';
+});
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/', 'HomeController@index')->name('home');
@@ -57,27 +61,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('video.group');
 });
 
+// @see routes/admin.php
 /*
 |--------------------------------------------------------------------------
 | Admin Routes
 |--------------------------------------------------------------------------
 */
-Route::namespace('Admin')->prefix('admin')->name('admin.')->group(function () {
-    Auth::routes();
+// Route::namespace('Admin')->prefix('admin')->name('admin.')->group(function () {
+//     Auth::routes();
 
-    Route::middleware(['auth:admin'])->group(function () {
-        Route::get('/', 'HomeController@index')->name('home');
-        Route::post('logout', 'Auth\LoginController@logout')->name('logout');
+//     Route::middleware(['auth:admin'])->group(function () {
+//         Route::get('/', 'HomeController@index')->name('home');
+//         Route::post('logout', 'Auth\LoginController@logout')->name('logout');
 
-        Route::get('welcome', function () {
-            return view('admin.welcome');
-        })->name('welcome');
+//         Route::get('welcome', function () {
+//             return view('admin.welcome');
+//         })->name('welcome');
 
-        Route::resource('users', 'UsersController');
+//         Route::resource('users', 'UsersController');
 
-        Route::post('users/{user}/pusher', 'UsersController@pusher')->name('users.pusher');
-    });
-});
+//         Route::post('users/{user}/pusher', 'UsersController@pusher')->name('users.pusher');
+//     });
+// });
 
 
 /*

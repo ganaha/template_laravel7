@@ -38,6 +38,10 @@ Route::post('/login', function (Request $request) {
     return $user->createToken('my-token')->plainTextToken;
 });
 
+// 仮登録
+Route::post('/register', 'Api\Auth\RegisterController@register');
+Route::get('/email/verify/{id}/{hash}', 'Api\Auth\VerificationController@verify')->name('api.verification.verify');
+
 Route::middleware('auth:sanctum')->group(function () {
     // ログインユーザー情報
     Route::get('/user', function (Request $request) {
