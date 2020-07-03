@@ -3,6 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\ValidationException;
+use App\Http\Requests\LoginRequest;
+use App\Http\Resources\RecordResource;
+use App\Http\Resources\RecordsCollection;
 use App\User;
 
 /*
@@ -21,11 +24,11 @@ use App\User;
 // });
 
 // ログイン(トークン発行)
-Route::post('/login', function (Request $request) {
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required'
-    ]);
+Route::post('/login', function (LoginRequest $request) {
+    // $request->validate([
+    //     'email' => 'required|email',
+    //     'password' => 'required'
+    // ]);
 
     $user = User::where('email', $request->email)->first();
 
@@ -34,8 +37,8 @@ Route::post('/login', function (Request $request) {
             'email' => ['The provided credentials are incorrect.'],
         ]);
     }
-
-    return $user->createToken('my-token')->plainTextToken;
+    $token = $user->createToken('my-token')->plainTextToken; 
+    return new RecordResource(['token' => $token]);
 });
 
 // 仮登録
@@ -45,14 +48,14 @@ Route::get('/email/verify/{id}/{hash}', 'Api\Auth\VerificationController@verify'
 Route::middleware('auth:sanctum')->group(function () {
     // ログインユーザー情報
     Route::get('/user', function (Request $request) {
-        return $request->user();
+        return new RecordResource($request->user());
     });
     // ユーザー一覧取得
     Route::get('/users', function (Request $request) {
-        return User::paginate(2);
+        return new RecordsCollection(User::paginate(2));
     });
     Route::get('/logout', function (Request $request) {
         \Auth::user()->tokens()->delete();
-        return 'OK';
+        return new RecordResource([]);
     });
 });
