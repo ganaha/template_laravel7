@@ -23,3 +23,4 @@
     - 別ユーザーで/videoにアクセスし、◯◯さんと通話を開始する を押下
 - API(Sanctum)
 - Deploy(Envoy)
+    - `envoy run deploy`
