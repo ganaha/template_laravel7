@@ -32,9 +32,26 @@
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
+                    @auth
                     <ul class="navbar-nav mr-auto">
-
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin">Admin</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                Chat
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="/chat/public">Public Channel</a>
+                                <a class="dropdown-item" href="/chat/private">Private Channel</a>
+                                <a class="dropdown-item" href="/chat/presence/1">Presence Channel 1</a>
+                                <a class="dropdown-item" href="/chat/presence/2">Presence Channel 2</a>
+                                <a class="dropdown-item" href="/video">Video</a>
+                                <a class="dropdown-item" href="/video/group">Group Video</a>
+                            </div>
+                        </li>
                     </ul>
+                    @endauth
 
                     <!-- Right Side Of Navbar -->
                     <ul class="navbar-nav ml-auto">
